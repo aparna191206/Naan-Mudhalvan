@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <title>Importing Data Using Transform Maps (Spreadsheet)</title>
+  <platform>ServiceNow System Administrator</platform>
+  <overview>
+    Import employee records from an Excel spreadsheet into a custom ServiceNow
+    table. Data first lands in an Import Set (staging) table, is mapped by a
+    Transform Map, and Coalesce prevents duplicate records.
+  </overview>
+
+  <milestones>
+
+    <milestone id="1" name="Creation of Spreadsheet and Table">
+      <task id="1.1" name="Creation of Spreadsheet">
+        <step>Create an Excel file named employee_data.xlsx.</step>
+        <step>Add the header row: Employee ID, Name, Email, Department, Location.</step>
+        <step>Enter 8-10 sample rows; keep Employee ID unique.</step>
+        <step>Save the file in .xlsx format.</step>
+      </task>
+      <task id="1.2" name="Creation of Tables">
+        <step>Open ServiceNow Studio / System Definition &gt; Tables &gt; New.</step>
+        <step>Label: Employee Details, Name: u_employee_details.</step>
+        <step>Add the columns listed below and submit.</step>
+        <table name="u_employee_details" label="Employee Details">
+          <column name="u_employee_id" label="Employee ID" type="String" maxLength="40"/>
+          <column name="u_name" label="Name" type="String" maxLength="100"/>
+          <column name="u_email" label="Email" type="String" maxLength="100"/>
+          <column name="u_department" label="Department" type="String" maxLength="100"/>
+          <column name="u_location" label="Location" type="String" maxLength="100"/>
+        </table>
+      </task>
+    </milestone>
+
+    <milestone id="2" name="Creation of Import Set Table and Transform Map">
+      <task id="2.1" name="Create Import Set Table (Staging)">
+        <description>
+          The Import Set Table is a temporary staging table for data uploaded
+          from the spreadsheet. Records are stored here before transformation.
+        </description>
+        <step>Go to System Import Sets &gt; Load Data.</step>
+        <step>Create table: Label "Employee Import", Name u_employee_import.</step>
+        <step>Source of data: File, Format: Excel (.xlsx), choose employee_data.xlsx.</step>
+        <step>Click Submit to load data into the staging table.</step>
+      </task>
+      <task id="2.2" name="Create Transform Map">
+        <step>On the loaded Import Set, click Create Transform Map.</step>
+        <step>Name: Employee Import to Employee Details.</step>
+        <step>Source table: u_employee_import. Target table: u_employee_details.</step>
+        <step>Use Auto Map Matching Fields or map each field manually.</step>
+        <transformMap name="Employee Import to Employee Details"
+                      source="u_employee_import" target="u_employee_details">
+          <fieldMap source="u_employee_id" target="u_employee_id"/>
+          <fieldMap source="u_name"        target="u_name"/>
+          <fieldMap source="u_email"       target="u_email"/>
+          <fieldMap source="u_department"  target="u_department"/>
+          <fieldMap source="u_location"    target="u_location"/>
+        </transformMap>
+      </task>
+    </milestone>
+
+    <milestone id="3" name="Transform Data, Validate and Enable Coalesce to Avoid Duplicate Records">
+      <task id="3.1" name="Transform Data">
+        <step>Open the Transform Map and click Transform.</step>
+        <step>Select the Import Set and run the transform.</step>
+        <step>Check the Transform History for inserted/updated/ignored counts.</step>
+      </task>
+      <task id="3.2" name="Enable Coalesce">
+        <step>Open the Field Map for Employee ID.</step>
+        <step>Tick the Coalesce checkbox and save.</step>
+        <step>Re-import the same file: existing records are updated, not duplicated.</step>
+        <coalesce field="u_employee_id" enabled="true"/>
+      </task>
+      <task id="3.3" name="Validate">
+        <step>Open u_employee_details.list and confirm all rows are present.</step>
+        <step>Verify no duplicate Employee IDs exist after a second import.</step>
+        <step>Confirm field values match the spreadsheet.</step>
+      </task>
+    </milestone>
+
+  </milestones>
+
+  <expectedOutcome>
+    Spreadsheet data is imported through an Import Set table and transformed
+    into the Employee Details table, with duplicates avoided through Coalesce.
+  </expectedOutcome>
+
+  <submission>
+    <item>Screenshots of the spreadsheet, tables, transform map and results</item>
+    <item>Demo link</item>
+    <item>GitHub link</item>
+  </submission>
+</project>
